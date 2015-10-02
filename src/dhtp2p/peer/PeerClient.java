@@ -3,6 +3,7 @@ package dhtp2p.peer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,13 +23,24 @@ public class PeerClient {
 	
 	private Socket socket;
 	private String config;
-	private static Map<Long, Address> addressTable = new ConcurrentHashMap<Long, Address>();
 	private int peerNum;
+	private static Map<Long, Address> addressTable = new ConcurrentHashMap<Long, Address>();
+	
+	//Cache the old socket used for communication with other servers for reuse in the future communication
+	private Map<Address, Socket> socketCache = new ConcurrentHashMap<Address, Socket>(); 
 	
 	public PeerClient(String config) throws FileNotFoundException{
 		this.config = config;
 		this.addressTable = Configuration.load(config);
 		this.peerNum = addressTable.size();
+	}
+	
+	public Socket getSocket() {
+		return socket;
+	}
+
+	public void setSocket(Socket socket) {
+		this.socket = socket;
 	}
 	
 	public synchronized Address lookupAddressTable(long peerIndex){
@@ -37,7 +49,27 @@ public class PeerClient {
 		if(addressTable.containsKey(peerIndex))
 			peerAddress = addressTable.get(peerIndex);
 		return peerAddress;
-}
+	}
+	
+	private void getSocket(Address peerAddress){
+		
+		if(socketCache.containsKey(peerAddress)){
+			this.socket = socketCache.get(peerAddress);	
+		}else{
+			try {
+				this.socket = new Socket(peerAddress.getHostname(),peerAddress.getPort());
+				socketCache.put(peerAddress,this.socket);
+				
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+	}
 	
 	/**
 	 * checkMessage function is to check if the IndexServer returned OK command to the peer.
@@ -54,14 +86,15 @@ public class PeerClient {
 	
 	public void put(String dhtKey, String dhtValue){
 		
-		System.out.println("Client dhtKey 2: " + dhtKey);
+		//System.out.println("Client dhtKey 2: " + dhtKey);
 		try {
 			int peerIndex = KeyHash.getIndex(dhtKey, peerNum);
-			System.out.println("This <key,value> pair should go to peer: " + peerIndex);
+//			System.out.println("This <key,value> pair should go to peer: " + peerIndex);
 			Address peerAddress = lookupAddressTable(peerIndex);
-			System.out.println("The address of this peer is: " + peerAddress.getHostname() + "/" + peerAddress.getPort());
+//			System.out.println("The address of this peer is: " + peerAddress.getHostname() + "/" + peerAddress.getPort());
 			
-			socket = new Socket(peerAddress.getHostname(), peerAddress.getPort());
+//			socket = new Socket(peerAddress.getHostname(), peerAddress.getPort());
+			this.getSocket(peerAddress);
 			
 			Map<String, Object> putMap = new HashMap<String,Object>();
 			putMap.put("dhtKey", dhtKey);
@@ -69,16 +102,16 @@ public class PeerClient {
 		
 			Message msgOut = new Message(Command.PUT,putMap);
 			Transfer.sendMessage(msgOut, this.socket.getOutputStream());
-			socket.shutdownOutput();
+//			this.socket.shutdownOutput();
 			
-			//Set the peerId for this peer
 			Message msgIn = Transfer.receiveMessage(this.socket.getInputStream());
-			if(checkMessage(msgIn)){
-				System.out.println(msgIn.getContent());
-			}else{
-				System.out.println(msgIn.getContent());
-			}
-			socket.shutdownInput();
+
+//			if(checkMessage(msgIn)){
+//				System.out.println(msgIn.getContent());
+//			}else{
+//				System.out.println(msgIn.getContent());
+//			}
+//			this.socket.shutdownInput();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -89,11 +122,12 @@ public class PeerClient {
 		
 		try {
 			int peerIndex = KeyHash.getIndex(dhtKey, peerNum);
-			System.out.println("The <key,value> pair is on peer: " + peerIndex);
+//			System.out.println("The <key,value> pair is on peer: " + peerIndex);
 			Address peerAddress = lookupAddressTable(peerIndex);
-			System.out.println("The address of this peer is: " + peerAddress.getHostname() + "/" + peerAddress.getPort());
+//			System.out.println("The address of this peer is: " + peerAddress.getHostname() + "/" + peerAddress.getPort());
 			
-			socket = new Socket(peerAddress.getHostname(), peerAddress.getPort());
+			//socket = new Socket(peerAddress.getHostname(), peerAddress.getPort());
+			this.getSocket(peerAddress);
 			
 			Map<String, Object> getMap = new HashMap<String,Object>();
 			getMap.put("dhtKey", dhtKey);
@@ -101,16 +135,17 @@ public class PeerClient {
 		
 			Message msgOut = new Message(Command.GET,getMap);
 			Transfer.sendMessage(msgOut, this.socket.getOutputStream());
-			socket.shutdownOutput();
+//			this.socket.shutdownOutput();
 			
 			//Set the peerId for this peer
+
 			Message msgIn = Transfer.receiveMessage(this.socket.getInputStream());
-			if(checkMessage(msgIn)){
-				System.out.println("The value of this key is: " + msgIn.getContent());
-			}else{
-				System.out.println("This <key,value> pair is not avaliable!");
-			}
-			socket.shutdownInput();
+//			if(checkMessage(msgIn)){
+//				System.out.println("The value of this key is: " + msgIn.getContent());
+//			}else{
+//				System.out.println("This <key,value> pair is not avaliable!");
+//			}
+//			this.socket.shutdownInput();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -121,32 +156,36 @@ public class PeerClient {
 		
 		try {
 			int peerIndex = KeyHash.getIndex(dhtKey, peerNum);
-			System.out.println("This <key,value> pair is on peer: " + peerIndex);
+//			System.out.println("This <key,value> pair is on peer: " + peerIndex);
 			Address peerAddress = lookupAddressTable(peerIndex);
-			System.out.println("The address of this peer is: " + peerAddress.getHostname() + "/" + peerAddress.getPort());
+//			System.out.println("The address of this peer is: " + peerAddress.getHostname() + "/" + peerAddress.getPort());
 			
-			socket = new Socket(peerAddress.getHostname(), peerAddress.getPort());
+			//socket = new Socket(peerAddress.getHostname(), peerAddress.getPort());
+			this.getSocket(peerAddress);
 			
 			Map<String, Object> deleteMap = new HashMap<String,Object>();
 			deleteMap.put("dhtKey", dhtKey);
 		
 			Message msgOut = new Message(Command.DELETE,deleteMap);
+
 			Transfer.sendMessage(msgOut, this.socket.getOutputStream());
-			socket.shutdownOutput();
+//			this.socket.shutdownOutput();
 			
 			//Set the peerId for this peer
+
 			Message msgIn = Transfer.receiveMessage(this.socket.getInputStream());
-			if(checkMessage(msgIn)){
-				System.out.println(msgIn.getContent());
-			}else{
-				System.out.println(msgIn.getContent());
-			}
-			socket.shutdownInput();
+//			if(checkMessage(msgIn)){
+//				System.out.println(msgIn.getContent());
+//			}else{
+//				System.out.println(msgIn.getContent());
+//			}
+//			this.socket.shutdownInput();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+
 	
 	
 	

@@ -1,11 +1,13 @@
 package dhtp2p;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import dhtp2p.peer.PeerClient;
 import dhtp2p.utils.KeyHash;
@@ -27,8 +29,26 @@ public class Evaluation {
 			Thread.sleep(10);
 			PeerClient pc = peer.getpClient();
 			
+			/*
+			Random rn = new Random(Integer.parseInt(inputRaw));
+			
+			long starttime = System.nanoTime();
+			
+			for(int i=0 ; i < 1000000 ; i++){
+				String dhtKey = "key" + rn.nextInt();
+				String dhtValue = "value";
+				pc.put(dhtKey, dhtValue);
+			}
+			
+			long endtime = System.nanoTime();
+			
+			long duration = TimeUnit.MILLISECONDS.convert((endtime - starttime), TimeUnit.NANOSECONDS);;
+			
+			System.out.println("Sending 1M PUT requests takes : " + duration + " ms." );
+			*/
+			
 			Timer timer = new Timer();
-			Date startdate = new Date(115,9,1,10,40,00);
+			Date startdate = new Date(115,9,1,21,03,00);
 			
 			System.out.println("Task start time: " + startdate);
 		
@@ -37,25 +57,49 @@ public class Evaluation {
 			
 					Random rn = new Random(Integer.parseInt(inputRaw));
 					
-					long starttime = System.nanoTime();
+					//Send 100K PUT requests
+					long putstart = System.nanoTime();
 					
-					for(int i=0 ; i < 10 ; i++){
+					for(int i=0 ; i < 2 ; i++){
 						String dhtKey = "key" + rn.nextInt();
 						String dhtValue = "value";
 						pc.put(dhtKey, dhtValue);
 						
 					}
+					long putend = System.nanoTime();
 					
-					long endtime = System.nanoTime();
+					long putduration = TimeUnit.MILLISECONDS.convert((putend - putstart), TimeUnit.NANOSECONDS);
+					System.out.println("Sending 100K PUT requests takes : " + putduration + " ms." );
 					
-					long duration = endtime - starttime;
+					//Send 100K GET requests
+					long getstart = System.nanoTime();
 					
-					System.out.println("Sending 10 put requests takes : " + duration + "ns ." );
-	
+					for(int i=0 ; i < 2 ; i++){
+						String dhtKey = "key" + rn.nextInt();
+						pc.get(dhtKey);
+						
+					}
+					long getend = System.nanoTime();
+					
+					long getduration = TimeUnit.MILLISECONDS.convert((getend - getstart), TimeUnit.NANOSECONDS);
+					System.out.println("Sending 100K GET requests takes : " + getduration + " ms." );
+					
+					//Send 100K DELETE requests
+					long delstart = System.nanoTime();
+					
+					for(int i=0 ; i < 2 ; i++){
+						String dhtKey = "key" + rn.nextInt();
+						pc.delete(dhtKey);
+						
+					}
+					long delend = System.nanoTime();
+					
+					long delduration = TimeUnit.MILLISECONDS.convert((delend - delstart), TimeUnit.NANOSECONDS);
+					System.out.println("Sending 100K DELETE requests takes : " + delduration + " ms." );
 				}
 
 			}, startdate);
-	
+		
 
 			
 		} catch (NumberFormatException e) {

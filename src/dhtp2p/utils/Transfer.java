@@ -8,49 +8,51 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 
 import com.google.gson.Gson;
 
 /**
- * @author siliu
- * Transfer class is to deal with the message transfer
- * Message is composed by two parts: command and filename
- * Messgae is tranferred through Gson format
+ * @author siliu 
+ * Transfer class is to deal with the message transfer Message is composed by two parts: command and content
  */
 public class Transfer {
-	
-	//Receive message from Gson stream
-	public static Message receiveMessage(InputStream is){
+
+	// Receive message from ObjectInputStream 
+	// NOTE: PA1 uses GSON,which doesn't work in keeping socket connection for multiple requests
+	public static Message receiveMessage(InputStream is) {
+		
 		Message msg = new Message();
-		try{
-			
-			BufferedReader br = new BufferedReader(new InputStreamReader(is));
-			Gson gson = new Gson();
-			msg = gson.fromJson(br, Message.class);
-			
-		}catch (Exception ex){
-			System.out.println(" receive Exception: " + ex);
-		}
-		
-		return msg;
-	
-	}
-	
-	//Send message by converting it to Gson stream
-	public static void sendMessage(Message msg, OutputStream os) {
-		
-		 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
-         Gson gson = new Gson();
-         gson.toJson(msg, bw);
-         try {
-			bw.newLine();
-			bw.flush();
+
+		ObjectInputStream ois;
+		try {
+			ois = new ObjectInputStream(is);
+			msg = (Message) ois.readObject();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-        
-    }
+		return msg;
+
+	}
+
+	// Send message by converting it to ObjectOutputStream
+	public static void sendMessage(Message msg, OutputStream os) {
+		
+		try {
+			ObjectOutputStream oos = new ObjectOutputStream(os);
+			oos.writeObject(msg);
+			oos.flush();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
 }

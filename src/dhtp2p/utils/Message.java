@@ -1,12 +1,14 @@
 package dhtp2p.utils;
 
+import java.io.Serializable;
+
 import com.google.gson.Gson;
 
 /**
  * @author siliu
  *
  */
- public class Message {
+ public class Message implements Serializable  {
 
 	private Command cmd;
 	private Object content;
