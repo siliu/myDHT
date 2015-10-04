@@ -9,6 +9,10 @@ import java.util.TimerTask;
 
 import dhtp2p.peer.PeerClient;
 
+/**
+ * @author siliu
+ * Evaluation2 class is to only start the server 
+ */
 public class Evaluation2 {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -35,6 +39,10 @@ public class Evaluation2 {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+
+//		System.out.println("Working Directory = " + System.getProperty("user.dir") + "/src/dhtp2p/utils/config.txt" );
+
 	}
 
 }

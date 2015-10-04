@@ -12,7 +12,7 @@ public class KeyHash {
 	 * @return
 	 */
 	
-	private static String genHash(String dthKey){
+	public static String genHash(String dthKey){
 	
 		MessageDigest md = null;
 		try {
@@ -40,13 +40,12 @@ public class KeyHash {
 	 * @param hashhex
 	 * @return
 	 */
-	public static int getIndex(String dhtKey, int size){
+	public static int getIndex(String hashhex, int peerNum){
 		  
 		 //TODO: use hash value to find the index
 	     
-	     String hashhex = genHash(dhtKey);
 	     BigInteger hashint = new BigInteger(hashhex,16);
-	     BigInteger bigsize = new BigInteger(Integer.toString(size),10);
+	     BigInteger bigsize = new BigInteger(Integer.toString(peerNum),10);
 	     BigInteger bigindex = hashint.mod(bigsize);
 	     int index = bigindex.intValue() + 1;
 	    

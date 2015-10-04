@@ -11,7 +11,11 @@ import java.util.concurrent.TimeUnit;
 
 import dhtp2p.peer.PeerClient;
 import dhtp2p.utils.KeyHash;
-
+/**
+ * 
+ * @author siliu
+ * Evaluation class is to start server and send requests
+ */
 public class Evaluation {
 
 	public static void main(String[] args) {
@@ -48,7 +52,7 @@ public class Evaluation {
 			*/
 			
 			Timer timer = new Timer();
-			Date startdate = new Date(115,9,1,21,03,00);
+			Date startdate = new Date(115,9,2,10,52,00);
 			
 			System.out.println("Task start time: " + startdate);
 		
@@ -60,7 +64,7 @@ public class Evaluation {
 					//Send 100K PUT requests
 					long putstart = System.nanoTime();
 					
-					for(int i=0 ; i < 2 ; i++){
+					for(int i=0 ; i < 100000 ; i++){
 						String dhtKey = "key" + rn.nextInt();
 						String dhtValue = "value";
 						pc.put(dhtKey, dhtValue);
@@ -74,7 +78,7 @@ public class Evaluation {
 					//Send 100K GET requests
 					long getstart = System.nanoTime();
 					
-					for(int i=0 ; i < 2 ; i++){
+					for(int i=0 ; i < 100000 ; i++){
 						String dhtKey = "key" + rn.nextInt();
 						pc.get(dhtKey);
 						
@@ -87,7 +91,7 @@ public class Evaluation {
 					//Send 100K DELETE requests
 					long delstart = System.nanoTime();
 					
-					for(int i=0 ; i < 2 ; i++){
+					for(int i=0 ; i < 100000 ; i++){
 						String dhtKey = "key" + rn.nextInt();
 						pc.delete(dhtKey);
 						

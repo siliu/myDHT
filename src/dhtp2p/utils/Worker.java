@@ -6,10 +6,14 @@ import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 
+ * @author siliu
+ * Worker class is too implement the function of PeerServer
+ */
 public class Worker extends Thread {
 
 	private Socket socket;
-	// private ServerSocket ss;
 	private Map<String, Object> localTable = new ConcurrentHashMap<String, Object>();
 	
 	
@@ -31,8 +35,8 @@ public class Worker extends Thread {
 		if(! localTable.containsKey(dhtKey)){
 			localTable.put(dhtKey, dhtValue);
 			result = true;
-//			System.out.println("The current table content on this peer is: ");
-//			MapOperator.printMap(localTable);
+			System.out.println("The current table content on this peer is: ");
+			MapOperator.printMap(localTable);
 		}
 		
 		return result;
@@ -50,8 +54,8 @@ public class Worker extends Thread {
 		if(localTable.containsKey(dhtKey)){
 			localTable.remove(dhtKey);
 			result = true;
-//			System.out.println("The current table content on this peer is: ");
-//			MapOperator.printMap(localTable);
+			System.out.println("The current table content on this peer is: ");
+			MapOperator.printMap(localTable);
 		}
 		
 		return result;

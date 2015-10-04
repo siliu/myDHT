@@ -32,7 +32,7 @@ public class Peer {
 		this.peerIndex = peerIndex;
 		this.config = config;
 		pClient = new PeerClient(config);
-		this.port = pClient.lookupAddressTable(peerIndex).getPort();
+		this.port = pClient.getPeerAddress(peerIndex).getPort();
 		pServer = new PeerServer(port);
 	}
 	
@@ -62,12 +62,12 @@ public class Peer {
 	
 	 public static void printUsage() {
 	    	System.out.println("* * * * * * * * * * * * * * * * * *");
-	        System.out.println("*  CS550 PA2: DHT P2P System *");
+	        System.out.println("*  CS550 PA2: DHT P2P System  *");
 	        System.out.println("*                                 *");
 	        System.out.println("*      Name: Si Liu               *");
 	        System.out.println("*      CWID: A20334820            *");
 	        System.out.println("* * * * * * * * * * * * * * * * * *");
-	        System.out.println("Commands: PUT, GET, DELETE");
+	        System.out.println("Commands: PUT, GET, DELETE, EXIT");
 	        System.out.println("  [PUT]: Put <key,value> pair to the distributed hash table.");
 	        System.out.println("  [GET]: Get the value of the specific key in the distributed hash table.");
 	        System.out.println("  [DELETE]: Delete a <key,value> entry in the distributed hash table.");
@@ -75,7 +75,7 @@ public class Peer {
 	        System.out.println("Usage: Input the command or parameter as each promot says.");
 	    }
 	 
-	 /*
+
 	 
 	public static void main(String[] args) {
 		
@@ -84,7 +84,7 @@ public class Peer {
 		System.out.println("Please input the index for this peer: ");
     	Scanner inputScanner = new Scanner(System.in);
     	String inputRaw = inputScanner.nextLine();
-    	String configPath = "/Users/siliu/Documents/workspace/DHTP2PFileSharing/src/dhtp2p/utils/config.txt";
+    	String configPath = System.getProperty("user.dir") + "/src/dhtp2p/utils/config.txt" ;
     	
 		try {
 			Peer peer = new Peer(Integer.parseInt(inputRaw),configPath);
@@ -100,7 +100,7 @@ public class Peer {
 				
 				if(userInput.equalsIgnoreCase("PUT")){
 					
-					System.out.println("Please input the key to put into the table: ");
+					System.out.println("Please input the key to put into the hash table: ");
 					String dhtKey = br.readLine();
 					System.out.println("Please input the value corresponding to the key: ");
 					String dhtValue = br.readLine(); 
@@ -116,7 +116,7 @@ public class Peer {
 					
 				}else if(userInput.equalsIgnoreCase("DELETE")){
 					
-					System.out.println("Please input the key of the table entry to delete: ");
+					System.out.println("Please input the key of pair to delete: ");
 					String dhtKey = br.readLine();
 					pc.delete(dhtKey);
 					System.out.println("Please input next command:  ");
@@ -149,10 +149,9 @@ public class Peer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	
-
+ 
 	}
-*/
+
 
 	
 }
